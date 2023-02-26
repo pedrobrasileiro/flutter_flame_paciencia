@@ -1,16 +1,16 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
 import '../klondike_game.dart';
 import '../pile.dart';
 import '../rank.dart';
 import '../suit.dart';
 import 'tableau_pile.dart';
 
-class Card extends PositionComponent with DragCallbacks {
+class Card extends PositionComponent with DragCallbacks, TapCallbacks {
   Card(int intRank, int intSuit)
       : rank = Rank.fromInt(intRank),
         suit = Suit.fromInt(intSuit),
@@ -26,6 +26,8 @@ class Card extends PositionComponent with DragCallbacks {
   bool get isFaceUp => _faceUp;
   bool get isFaceDown => !_faceUp;
   void flip() => _faceUp = !_faceUp;
+
+  DateTime? _firstClick;
 
   @override
   String toString() => rank.label + suit.label; // e.g. "Q♠" or "10♦"
@@ -282,6 +284,32 @@ class Card extends PositionComponent with DragCallbacks {
       }
       attachedCards.clear();
     }
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    int diffTimeClick = 0;
+    bool doubleClickDetect = false;
+
+    if (_firstClick != null) {
+      diffTimeClick =
+          DateTime.now().difference(_firstClick as DateTime).inMilliseconds;
+
+      doubleClickDetect =
+          diffTimeClick < 1000; // Detect double click if difference is 1 second
+      _firstClick = DateTime.now();
+
+      doubleClickDetect ? debugPrint('Double tap in $this') : null;
+    } else {
+      _firstClick = DateTime.now();
+    }
+
+    // debugPrint("tap up $this $doubleClickDetect");
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    // debugPrint("tap down $this");
   }
 
   //#endregion
