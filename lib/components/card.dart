@@ -18,6 +18,7 @@ class Card extends PositionComponent with DragCallbacks, TapCallbacks {
 
   final Rank rank;
   final Suit suit;
+  final _timeDetectDoubleTap = 1000; // 1 second
   Pile? pile;
   bool _faceUp = false;
   bool _isDragging = false;
@@ -27,7 +28,7 @@ class Card extends PositionComponent with DragCallbacks, TapCallbacks {
   bool get isFaceDown => !_faceUp;
   void flip() => _faceUp = !_faceUp;
 
-  DateTime? _firstClick;
+  DateTime? _firstTap;
 
   @override
   String toString() => rank.label + suit.label; // e.g. "Q♠" or "10♦"
@@ -291,17 +292,17 @@ class Card extends PositionComponent with DragCallbacks, TapCallbacks {
     int diffTimeClick = 0;
     bool doubleClickDetect = false;
 
-    if (_firstClick != null) {
+    if (_firstTap != null) {
       diffTimeClick =
-          DateTime.now().difference(_firstClick as DateTime).inMilliseconds;
+          DateTime.now().difference(_firstTap as DateTime).inMilliseconds;
 
-      doubleClickDetect =
-          diffTimeClick < 1000; // Detect double click if difference is 1 second
-      _firstClick = DateTime.now();
+      doubleClickDetect = diffTimeClick <
+          _timeDetectDoubleTap; // Detect double click if difference is 1 second
+      _firstTap = DateTime.now();
 
       doubleClickDetect ? debugPrint('Double tap in $this') : null;
     } else {
-      _firstClick = DateTime.now();
+      _firstTap = DateTime.now();
     }
 
     // debugPrint("tap up $this $doubleClickDetect");
